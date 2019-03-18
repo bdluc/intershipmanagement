@@ -23,6 +23,11 @@ class TopNavigation extends Component {
         });
     }
 
+    Logout = ()=>{
+        localStorage.removeItem('user')
+        this.props.onLogin(false)
+    } 
+
     render() {
         return (
             <Navbar className="flexible-navbar" light expand="md" scrolling>
@@ -32,7 +37,7 @@ class TopNavigation extends Component {
                 <NavbarToggler onClick = { this.onClick } />
                 <Collapse isOpen = { this.state.collapse } navbar>
                     <NavbarNav left>
-                        TMA Solutions
+                        TMA Solutions                       
                     </NavbarNav>
                     <NavbarNav right>
                         <NavItem>
@@ -45,7 +50,7 @@ class TopNavigation extends Component {
                             <a className="border border-light rounded mr-1 nav-link Ripple-parent" rel="noopener noreferrer" href="https://github.com/mdbootstrap/React-Bootstrap-with-Material-Design" target="_blank"><Fa icon="github" className="mr-2"/>MDB GitHub</a>
                         </NavItem>
                         <NavItem>
-                            <a className="border border-light rounded mr-1 nav-link Ripple-parent" rel="noopener noreferrer" href="https://mdbootstrap.com/products/react-ui-kit/" target="_blank"><Fa icon="github" className="mr-2"/>Go Pro</a>
+                            <a className="border border-light rounded mr-1 nav-link Ripple-parent" rel="noopener noreferrer" onClick={this.Logout} target="_blank"><Fa icon="github" className="mr-2"/>Log Out</a>
                         </NavItem>
                     </NavbarNav>
                 </Collapse>

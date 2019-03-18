@@ -35,12 +35,14 @@ class App extends Component {
     } else {
       return (
         <div className="flexible-content">
-          <TopNavigation />
+          <TopNavigation onLogin = {this.onLogin.bind(this)}/>
           <SideNavigation />
+          <div>
           <main id="content" className="p-5">
             <Routes></Routes>
           </main>
           <Footer />
+          </div>        
         </div>
       )
     }
