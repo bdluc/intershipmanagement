@@ -13,6 +13,7 @@ import Typography from '@material-ui/core/Typography';
 import Tab from '@material-ui/core/Tab';
 import DatePicker from 'react-date-picker';
 import $ from 'jquery';
+import  { Redirect } from 'react-router-dom'
 
 /* Import MUIDataTable using command "npm install mui-datatables --save" */
 
@@ -175,7 +176,7 @@ class UserPage extends React.Component{
   };
 
   componentDidMount(){
-    if (this.state.user.Role !== 3) {
+    if (this.state.user.Role !== 1) {
       if (this.state.user.Role === 2) {
         this.GetTraineeListByMentor()
         this.GetCourseListByMentor()
@@ -195,6 +196,7 @@ class UserPage extends React.Component{
       if (this.state.icon === "edit") {
         $(".fa-birthday-cake").addClass("active")
         $(".fa-transgender").addClass("active")
+        $(".fa-book").addClass("active")
       }
     },100)
   };
@@ -225,7 +227,8 @@ class UserPage extends React.Component{
       icon : "plus",
       isUpdate : false,
       errorGender : "",
-      errorDob: ""
+      errorDob: "",
+      errorCourse: "",
     });
     this.toggle()
   }
@@ -400,6 +403,25 @@ class UserPage extends React.Component{
     }   
     // End check University field
 
+    // Check for Course
+    if (e.target.course !== undefined) {
+      e.target.course.className = "form-control"
+      this.setState({
+        errorCourse : ""
+      })
+      $(".fa-book").addClass("active")
+      if (e.target.course.value === "Choose Course") {
+        e.target.course.className += " invalid"
+        this.setState({
+          errorCourse : "Please Choose Course"
+        })
+        check = false
+      } else {
+        e.target.course.className += " valid"
+      }
+    }  
+    // End check Gender
+
     return check
   }
 
@@ -459,7 +481,11 @@ class UserPage extends React.Component{
                 body: JSON.stringify(data)
             })
             .then(() => {
-              this.GetTraineeList()
+              if (this.state.user.Role === 2) {
+                this.GetTraineeListByMentor()
+              } else {
+                this.GetTraineeList()
+              }  
             })
         this.toggle()
       }
@@ -479,6 +505,7 @@ class UserPage extends React.Component{
           "Gender" : this.state.gender === "Male"?true:false,
           "DoB" : this.state.dob,
           "Department" : this.state.department.trim(),
+          "SupervisorID" : this.state.user.RoleID,
         }
         fetch(this.getURL("mentor"),
             {
@@ -503,7 +530,7 @@ class UserPage extends React.Component{
           "Gender" : this.state.gender === "Male"?true:false,
           "DoB" : this.state.dob,
           "Department" : this.state.department.trim(),
-          "SupervisorID" : "5c1a11b49ef458a033e70628",
+          "SupervisorID" : this.state.user.RoleID,
           "IsDeleted" : false
         }
         fetch(this.getURL("mentor"),
@@ -524,23 +551,15 @@ class UserPage extends React.Component{
   }
  
   handlerDelete = () => {
-    let data = [
-      [1,'Tiger Nixon','0156485446','tiger@hotmail.com','male','2007/05/28','Qui Nhon University','Information Technology','Lucas'],
-      [2,'Jesse Welch','0154841212','jesse@hotmail.com','female','2011/04/14','Qui Nhon University','Information Technology','Memphis'],
-      [3,'Eli Mejia','0484812115','eli@hotmail.com','female','2011/04/05','Qui Nhon University','Information Technology','Lucas'],
-      [4,'Gene Leblanc','051321446','gene@hotmail.com','male','2006/06/12','Qui Nhon University','Information Technology','Memphis'],
-      [5,'Danny Leon','0561848446','danny@hotmail.com','male','2011/05/25','Qui Nhon University','Information Technology','Lucas'],
-      [6,'Franky Miles','01321585446','franky@hotmail.com','male','2005/11/21','Qui Nhon University','Information Technology','Lucas'],
-      [7,'Silver Carey','011815446','silver@hotmail.com','male','2010/12/30','Qui Nhon University','Information Technology','Baltimore'],
-      [8,'Justice Mccarthy','0115515446','justice@hotmail.com','female','2011/12/14','Qui Nhon University','Information Technology','Baltimore'],
-      [9,'Terry Macdonald','01548814446','terry@hotmail.com','male','2007/07/15','Qui Nhon University','Information Technology','Memphis'],
-      [10,'Danni Hudson','0456488486','danni@hotmail.com','male','2009/01/14','Qui Nhon University','Information Technology','Baltimore'],
-      [11,'Jesse Hall','0489849454','jesse@hotmail.com','female','2011/01/13','Qui Nhon University','Information Technology','Memphis'],
-      [12,'Lane Lee','0564846841','lane@hotmail.com','female','2011/02/24','Qui Nhon University','Information Technology','Lucas'],
-    ]
-    data.splice(this.state.id - 1,1)
-    this.setState({
-      data : data
+    fetch(this.getURL("trainee/") + this.state.id, {
+      method: 'DELETE'
+    })
+    .then(()=>{
+      if (this.state.user.Role === 2) {
+        this.GetTraineeListByMentor()
+      } else {
+        this.GetTraineeList()
+      }
     })
     this.toggle()
   }
@@ -821,6 +840,7 @@ class UserPage extends React.Component{
     onRowClick: (rowData, rowState) => {
       $(".fa-birthday-cake").addClass("active");
       $(".fa-transgender").addClass("active");
+      $(".fa-book").addClass("active");
       this.setState({
         id : rowData[1],
         name : rowData[2],
@@ -835,7 +855,8 @@ class UserPage extends React.Component{
         icon : "edit",
         isUpdate : true,
         errorDob : "",
-        errorGender : ""
+        errorGender : "",
+        errorCourse : "",
       });
       this.toggle()
     }
@@ -965,7 +986,7 @@ class UserPage extends React.Component{
         this.setState({
           errorGender : ""
         })
-        if (e.target.value === "Choose Gender") {
+        if (value === "Choose Gender") {
           e.target.className += " invalid"
           this.setState({
             errorGender : "Please Choose Gender"
@@ -1002,6 +1023,19 @@ class UserPage extends React.Component{
         break;
       case "course":
         this.setState({course: value})
+        e.target.className = "form-control"
+        $(".fa-book").addClass("active");
+        this.setState({
+          errorCourse : ""
+        })
+        if (value === "Choose Course") {
+          e.target.className += " invalid"
+          this.setState({
+            errorCourse : "Please Choose Course"
+          })
+        } else {
+          e.target.className += " valid"
+        }
         break;
       case "department":
         this.setState({department: value})
@@ -1030,8 +1064,10 @@ class UserPage extends React.Component{
     let columns = []
     if (this.state.user.Role === 2) {
       columns = this.columnsForMentor
-    } else if (this.state.user.Role === 1) {
+    } else if (this.state.user.Role === 3) {
       columns = this.columns
+    } else {
+      return <Redirect to='/' /> 
     }
     return (
       <React.Fragment>
@@ -1043,7 +1079,7 @@ class UserPage extends React.Component{
                   <AppBar position="static" className={classes.main}>
                     <Tabs fullWidth value={value} onChange={this.handleChangeTab}>
                       <LinkTab label="Trainee List" href="page1" />
-                      { this.state.user.Role === 1 && <LinkTab label="Mentor List" href="page2" />}
+                      { this.state.user.Role === 3 && <LinkTab label="Mentor List" href="page2" />}
                     </Tabs>
                   </AppBar>
                 </div>
@@ -1063,7 +1099,7 @@ class UserPage extends React.Component{
                     options={this.options}/>
                   </TabContainer>}
 
-                { this.state.user.Role === 1 && value === 1 && 
+                { this.state.user.Role === 3 && value === 1 && 
                   <TabContainer>
                     <MDBBtn
                       className="mb-3 blue darken-2"
@@ -1121,10 +1157,14 @@ class UserPage extends React.Component{
               </div>
               <MDBInput error={this.state.errorUniversity} label="University" icon="university" name="university" value={this.state.university} onChange={this.handleChangeValue.bind(this)}/>
               <MDBInput error={this.state.errorFaculty} label="Faculty" icon="bookmark" name="faculty" value={this.state.faculty} onChange={this.handleChangeValue.bind(this)}/>  
-              <select className="browser-default custom-select" name="course" value={this.state.course} onChange={this.handleChangeValue.bind(this)}>
-                <option>Choose Course</option>
-                {options}
-              </select>
+              <div className="md-form select-gender">
+                <i className="fa fa-book prefix"></i>
+                <select className="form-control" name="course" value={this.state.course} onChange={this.handleChangeValue.bind(this)}>
+                  <option>Choose Course</option>
+                  {options}
+                </select>
+                <label className="errorGender">{this.state.errorCourse}</label>
+              </div>            
               <div className="text-center mt-1-half">
                 <MDBBtn
                   className="mb-2 blue darken-2"

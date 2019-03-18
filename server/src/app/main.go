@@ -61,7 +61,7 @@ func setupRouter() *gin.Engine {
 	r.GET("/mentors", controllers.ListMentors)
 	r.GET("/mentor/:id", controllers.GetMentor)
 	r.POST("/mentor", controllers.CreateMentor)
-	// r.PUT("/mentor", controllers.UpdateMentor)
+	r.PUT("/mentor", controllers.UpdateMentor)
 	r.DELETE("/mentor/:id", controllers.DeleteMentor)
 
 	// Supervisors

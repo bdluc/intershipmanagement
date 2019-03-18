@@ -77,7 +77,7 @@ class TopNavigation extends Component {
                             Report
                         </ListGroupItem>
                     </NavLink>
-                    { role !== 3 &&
+                    { role !== 1 &&
                         <NavLink to="/tables" activeClassName="activeClass">
                             <ListGroupItem>
                                 <Fa icon="table" className="mr-3"/>
